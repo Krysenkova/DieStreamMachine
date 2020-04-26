@@ -1,9 +1,6 @@
 package streamMachine;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -37,28 +34,69 @@ public class Main {
         valueSet[0] = (float) 0.7;
         valueSet[1] = (float) 1.2;
 
-        int timeStampsNumber = timeStamps.length;
+        DataOutputStream dos = null;
+        try {
+            OutputStream os = new FileOutputStream(sensorName);
+            dos = new DataOutputStream(os);
+            dos.writeUTF(sensorName);
 
-        StreamMachine machine = new StreamMachineFS("TemperatureSensor1") {
-        };
-        for (int i = 0; i < timeStampsNumber; i++) {
-            machine.saveData(timeStamps[i], values[i]);
+            int timeStampsNumber = timeStamps.length;
+            dos.writeInt(timeStampsNumber);
 
-            InputStream is = new FileInputStream("TemperatureSensor1");
-            DataInputStream dis = new DataInputStream(is);
+            for (int i = 0; i < timeStampsNumber; i++) {
+                dos.writeLong(timeStamps[i]);
 
-            long readTimeStamps = dis.readLong();
-            System.out.println("Time: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date(readTimeStamps)));
-            int readValuesNumber = dis.readInt();
-            float[] readValues = new float[readValuesNumber];
-            for (int j = 0; j < readValuesNumber; j++) {
-                readValues[j] = dis.readFloat();
-                System.out.println("Value " + (j + 1) + ": " + readValues[j]);
+                int valuesNumber = values[i].length;
+                dos.writeInt(valuesNumber);
+                for (int j = 0; j < valuesNumber; j++) {
+                    dos.writeFloat(values[i][j]);
+                }
             }
-            dis.close();
-
+        } catch (IOException ex) {
+            System.err.println("Couldn’t write data (fatal)");
+            System.exit(0);
         }
 
+        dos.close();
+
+
+        DataInputStream dis = null;
+        String readSensorName = "";
+        long[] readTimeStamps = null;
+        float[][] readValues = null;
+
+        try {
+            InputStream is = new FileInputStream(sensorName);
+            dis = new DataInputStream(is);
+            readSensorName = dis.readUTF();
+
+            int readTimeStampNumber = dis.readInt();
+            readTimeStamps = new long[readTimeStampNumber];
+            readValues = new float[readTimeStampNumber][];
+            for (int i = 0; i < readTimeStampNumber; i++) {
+                readTimeStamps[i] = dis.readLong();
+                int readValuesNumber = dis.readInt();
+                float[] setOfValues = new float[readValuesNumber];
+                for (int j = 0; j < readValuesNumber; j++) {
+                    setOfValues[j] = dis.readFloat();
+                }
+                readValues[i] = setOfValues;
+            }
+        } catch (IOException ex) {
+            System.err.println("couldn’t read data (fatal)");
+            System.exit(0);
+        }
+
+        dis.close();
+
+        System.out.println("Sensor Name: " + readSensorName);
+        for (int i = 0; i < readTimeStamps.length; i++) {
+            System.out.println("Time: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date(readTimeStamps[i])));
+            for (int j = 0; j < readValues[i].length; j++) {
+                System.out.println("Value " + (j + 1) + ": " + readValues[i][j]);
+            }
+        }
     }
 }
+
 

@@ -1,10 +1,7 @@
 package streamMachine;
 
-//import streamMachine.model.DataRecord;
-
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 
 public class StreamMachineFS implements StreamMachine {
     private final String sensorName;
