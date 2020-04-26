@@ -1,11 +1,15 @@
-package filepersistence;
-import filepersistence.model.DataRecord;
+package streamMachine;
 
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, PersistenceException {
         // three example data sets
         String sensorName = "MyGoodOldSensor"; // does not change
 
@@ -35,11 +39,26 @@ public class Main {
 
         int timeStampsNumber = timeStamps.length;
 
-        SensorDataStorage ts = new TemperatureSensor("temperatureSensor.txt");
+        StreamMachine machine = new StreamMachineFS("TemperatureSensor1") {
+        };
         for (int i = 0; i < timeStampsNumber; i++) {
-            ts.saveData(new DataRecord(timeStamps[i], values[i]));
-            ts.readAndPrintDataRecord();
+            machine.saveData(timeStamps[i], values[i]);
+
+            InputStream is = new FileInputStream("TemperatureSensor1");
+            DataInputStream dis = new DataInputStream(is);
+
+            long readTimeStamps = dis.readLong();
+            System.out.println("Time: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").format(new Date(readTimeStamps)));
+            int readValuesNumber = dis.readInt();
+            float[] readValues = new float[readValuesNumber];
+            for (int j = 0; j < readValuesNumber; j++) {
+                readValues[j] = dis.readFloat();
+                System.out.println("Value " + (j + 1) + ": " + readValues[j]);
+            }
+            dis.close();
+
         }
+
     }
 }
 
