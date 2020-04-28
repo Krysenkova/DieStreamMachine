@@ -14,7 +14,7 @@ public class TransmissionTest {
 
         @Test
         public void gutConnectionTest1() throws IOException {
-            // open server side
+            // open server side.
             DataConnection serverSide = new DataConnector(PORTNUMBER);
 
             // open client side
