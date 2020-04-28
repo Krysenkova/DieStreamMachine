@@ -3,7 +3,7 @@ package streamMachine;
 import java.io.*;
 
 
-public class StreamMachineFS implements StreamMachine {
+public class StreamMachineFS implements SensorDataStorage {
     private final String sensorName;
     private final String sensorFileName;
     private int size = 0;

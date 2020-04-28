@@ -4,7 +4,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Main {
+public class WriteAndReadDataSet {
 
     public static void main(String[] args) throws IOException, PersistenceException {
         // three example data sets

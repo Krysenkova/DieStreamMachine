@@ -1,8 +1,5 @@
 package streamMachine;
 
-//import streamMachine.model.DataRecord;
-
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -10,7 +7,7 @@ import java.io.IOException;
  * We assume: Each sensor gets its own storage engine. There wont be a parameter
  * sensor name.
  */
-public interface StreamMachine {
+public interface SensorDataStorage {
 
     /**
      * This method can be called by a sensor to save a data set.
@@ -21,14 +18,15 @@ public interface StreamMachine {
      */
     void saveData(long time, float[] values) throws FileNotFoundException, IOException, PersistenceException;
 
-    //DataRecord readAndPrintDataRecord() throws FileNotFoundException, IOException;
-
     /**
      *
      * @return number of data sets
      */
     int size();
 
+    /**
+     * clears the data written to file
+     */
     void clear();
 
     /**
@@ -37,4 +35,17 @@ public interface StreamMachine {
      */
     SensorDataRecord getDataSet(int index) throws PersistenceException;
 
+   /* *//**
+     *
+     * @param setNumber data set number
+     * @return time stamp of chosen data set
+     *//*
+    long getTimestamp(int setNumber);
+
+    *//**
+     *
+     * @param setNumber data set number
+     * @return values of chosen data set
+     *//*
+    float[] getValues(int setNumber);*/
 }

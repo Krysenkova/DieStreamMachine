@@ -5,15 +5,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class StreamMachineTest {
+public class SensorDataStorageTest {
     @Test
     public void gutTest1() throws PersistenceException, IOException {
         String sensorName1 = "sensor1";
-        StreamMachine machine1 = new StreamMachineFS(sensorName1);
+        SensorDataStorage machine1 = new StreamMachineFS(sensorName1);
         machine1.clear();
 
         String sensorName2 = "sensor2";
-        StreamMachine machine2 = new StreamMachineFS(sensorName2);
+        SensorDataStorage machine2 = new StreamMachineFS(sensorName2);
         machine2.clear();
 
         long time1 = System.currentTimeMillis();
