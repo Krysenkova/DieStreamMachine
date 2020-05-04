@@ -1,12 +1,13 @@
 package sensorData;
 
+import streamMachine.PersistenceException;
 import streamMachine.SensorDataStorage;
 import transmission.DataConnection;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class SensorDataReceiver {
+public class SensorDataReceiver implements Runnable{
     private final DataConnection connection;
     private final SensorDataStorage storage;
     private long[] timeStamps;
@@ -22,19 +23,31 @@ public class SensorDataReceiver {
         return storage;
     }
 
-    public void getData() throws IOException {
+    public void getData() throws IOException, PersistenceException {
         DataInputStream dis = this.connection.getDataInputStream();
-        int timeStampsSize = dis.readInt();
-        this.timeStamps = new long[timeStampsSize];
-        this.values = new float[timeStampsSize][];
-        for (int i = 0; i < timeStampsSize; i++) {
-            this.timeStamps[i] = dis.readLong();
-            int valueSize = dis.readInt();
-            this.values[i] = new float[valueSize];
-            for (int j = 0; j < valueSize; j++) {
-                this.values[i][j] = dis.readFloat();
-            }
+        String name = dis.readUTF();
+        long time = dis.readLong();
+        int length = dis.readInt();
+        float[] values = new float[length];
+        for (int i = 0; i < length; i++) {
+            values[i] = dis.readFloat();
         }
-        dis.close();
+        this.storage.saveData(time, values);
+    }
+    public void getAndWriteData(){
+        Thread receiverThread = new Thread(this);
+        receiverThread.start();
+    }
+
+
+    @Override
+    public void run() {
+        try {
+            getData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (PersistenceException e) {
+            e.printStackTrace();
+        }
     }
 }

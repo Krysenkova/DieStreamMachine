@@ -3,10 +3,11 @@ package transmission;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
-public class DataConnector implements DataConnection {
-    private Socket socket = null;
+
+public class DataConnector implements DataConnection, Runnable {
+    private Socket socket;
+    int port;
 
     /**
      * Create client side - open connection to address / port
@@ -14,19 +15,9 @@ public class DataConnector implements DataConnection {
      * @param address ip address of localhost
      * @param port TCP port
      */
-    public DataConnector(String address, int port) {
+    public DataConnector(String address, int port) throws IOException {
+            this.socket = new Socket(address, port);
 
-        try {
-            /*address = "localhost";
-            port = 9876;*/
-            socket = new Socket(address, port);
-            System.out.println("Connected");
-
-        } catch (UnknownHostException u) {
-            System.out.println("Unknown host");
-        } catch (IOException ex) {
-            System.out.println("IOException");
-        }
     }
 
     /**
@@ -35,46 +26,41 @@ public class DataConnector implements DataConnection {
      * @param port TCP port
      */
     public DataConnector(int port) throws IOException {
-
-        ServerSocket server = null;
-        try {
-            server = new ServerSocket(port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Server started");
-
-        try {
-            socket = server.accept();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Client accepted");
+        //ServerSocket server = new ServerSocket(port);
+        this.port = port;
+        Thread serverThread = new Thread(this);
+        serverThread.start();
+        //System.out.println("Server started");
+        //this.socket = server.accept();
+        //System.out.println("Client accepted");
 
 
     }
 
     @Override
     public DataInputStream getDataInputStream() throws IOException {
-        InputStream is = null;
-        try{
-            is = socket.getInputStream();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        DataInputStream dis = new DataInputStream(is);
-        return dis;
+        return new DataInputStream(this.socket.getInputStream());
     }
 
     @Override
     public DataOutputStream getDataOutputStream() throws IOException {
-        OutputStream os = null;
+        return new DataOutputStream(this.socket.getOutputStream());
+    }
+
+    @Override
+    public void run() {
+        ServerSocket server = null;
         try {
-            os = socket.getOutputStream();
-        } catch (IOException e){
+            server = new ServerSocket(port);
+            System.out.println("Server started");
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        DataOutputStream dos = new DataOutputStream(os);
-        return dos;
+        try {
+            socket = server.accept();
+            System.out.println("Client accepted");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

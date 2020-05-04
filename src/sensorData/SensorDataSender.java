@@ -13,7 +13,10 @@ public class SensorDataSender {
     }
 
     public void sendData(String name, long time, float[] values) throws IOException {
-        DataOutputStream dos = connection.getDataOutputStream();
+        if (name == null || time < 0 || values == null || values.length == 0) {
+            throw new IOException("Parameter must not be null or empty");
+        }
+        DataOutputStream dos = this.connection.getDataOutputStream();
         dos.writeUTF(name);
         dos.writeLong(time);
         dos.writeInt(values.length);
