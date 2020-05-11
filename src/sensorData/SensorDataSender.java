@@ -20,8 +20,8 @@ public class SensorDataSender {
         dos.writeUTF(name);
         dos.writeLong(time);
         dos.writeInt(values.length);
-        for (int i = 0; i < values.length; i++) {
-            dos.writeFloat(values[i]);
+        for (float value : values) {
+            dos.writeFloat(value);
         }
         dos.close();
     }

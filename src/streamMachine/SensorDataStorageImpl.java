@@ -41,7 +41,7 @@ public class SensorDataStorageImpl implements SensorDataStorage {
 
     @Override
     public void saveData(long time, float[] values) throws PersistenceException {
-        OutputStream os = null;
+        OutputStream os;
         try {
             os = new FileOutputStream(this.sensorFileName, true);
         } catch (FileNotFoundException e) {
@@ -52,14 +52,14 @@ public class SensorDataStorageImpl implements SensorDataStorage {
 
             dos.writeLong(time);
             dos.writeInt(values.length);
-            for (int i = 0; i < values.length; i++) {
-                dos.writeFloat(values[i]);
+            for (float value : values) {
+                dos.writeFloat(value);
             }
             dos.close();
             this.size++;
             this.saveMetaData();
         } catch (IOException e) {
-            throw new PersistenceException(e.getLocalizedMessage());
+            throw new PersistenceException("Cannot save data");
         }
 
     }
@@ -73,6 +73,7 @@ public class SensorDataStorageImpl implements SensorDataStorage {
         return this.sensorName + ".txt";
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public void clear() {
         File file = new File(this.getMetaFileName());
@@ -80,6 +81,7 @@ public class SensorDataStorageImpl implements SensorDataStorage {
 
         file = new File(this.getFileName());
         file.delete();
+
 
         this.size = 0;
         this.sensorData = null;
@@ -111,14 +113,14 @@ public class SensorDataStorageImpl implements SensorDataStorage {
 
     @Override
     public SensorDataRecord getDataSet(int index) throws PersistenceException {
-        if (index < 0 || index >= this.size) {
+        if (index < 0 || index > this.size) {
             throw new PersistenceException("index negative or to big");
         }
         if (this.sensorData == null) {
             try {
                 this.readFromFile();
             } catch (IOException e) {
-                throw new PersistenceException(e.getLocalizedMessage());
+                throw new PersistenceException("Cannot get data set");
             }
         }
         return this.sensorData[index];

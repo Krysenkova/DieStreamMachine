@@ -5,19 +5,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 
-public class DataConnector implements DataConnection, Runnable {
+public class DataConnector extends Thread implements DataConnection {
     private Socket socket;
-    int port;
+    private ServerSocket server;
 
     /**
      * Create client side - open connection to address / port
      * Creates a stream socket and connects it to the port number on the specified host.
+     *
      * @param address ip address of localhost
-     * @param port TCP port
+     * @param port    TCP port
      */
     public DataConnector(String address, int port) throws IOException {
-            this.socket = new Socket(address, port);
-
+        this.socket = new Socket(address, port);
     }
 
     /**
@@ -26,13 +26,14 @@ public class DataConnector implements DataConnection, Runnable {
      * @param port TCP port
      */
     public DataConnector(int port) throws IOException {
-        //ServerSocket server = new ServerSocket(port);
-        this.port = port;
-        Thread serverThread = new Thread(this);
-        serverThread.start();
-        //System.out.println("Server started");
-        //this.socket = server.accept();
-        //System.out.println("Client accepted");
+
+        this.server = new ServerSocket(port);
+        this.start();
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            System.out.println("Thread was interrupted");
+        }
 
 
     }
@@ -47,20 +48,13 @@ public class DataConnector implements DataConnection, Runnable {
         return new DataOutputStream(this.socket.getOutputStream());
     }
 
-    @Override
     public void run() {
-        ServerSocket server = null;
         try {
-            server = new ServerSocket(port);
-            System.out.println("Server started");
+            this.socket = server.accept();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Something's wrong");
         }
-        try {
-            socket = server.accept();
-            System.out.println("Client accepted");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
+
 }

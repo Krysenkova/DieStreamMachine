@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class WriteAndReadDataSet {
 
-    public static void main(String[] args) throws IOException, PersistenceException {
+    public static void main(String[] args) throws IOException {
         // three example data sets
         String sensorName = "MyGoodOldSensor"; // does not change
 
